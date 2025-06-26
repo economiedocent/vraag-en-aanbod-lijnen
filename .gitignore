@@ -1,0 +1,12 @@
+# Systeembestanden
+.DS_Store
+Thumbs.db
+
+# IDE- en editor-specifieke bestanden
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
