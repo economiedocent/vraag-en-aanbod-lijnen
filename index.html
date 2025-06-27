@@ -37,12 +37,33 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        #api-key-modal {
+            transition: opacity 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex items-center justify-center min-h-screen p-4">
 
-    <div id="game-container" class="w-full max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-        
+    <!-- API Key Modal -->
+    <div id="api-key-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-md text-center">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">API Sleutel Vereist</h2>
+            <p class="text-slate-600 mb-6">Om de AI-functies te gebruiken, heeft u een gratis Google AI Studio API-sleutel nodig. Plak deze hieronder.</p>
+            <input type="password" id="api-key-input" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Plak uw API-sleutel hier">
+            <div class="flex gap-4 mt-6">
+                 <button id="close-modal-button" class="w-full bg-slate-200 text-slate-800 font-bold py-2 px-4 rounded-lg hover:bg-slate-300 transition-colors">Annuleren</button>
+                <button id="save-api-key-button" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Opslaan</button>
+            </div>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="block text-sm text-blue-600 hover:underline mt-6">Hoe kom ik aan een API-sleutel?</a>
+        </div>
+    </div>
+
+    <div id="game-container" class="w-full max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-lg relative">
+        <!-- Settings Button -->
+        <button id="settings-button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+
         <div id="start-screen" class="text-center">
             <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Spel: Vraag & Aanbod Verschuivingen</h1>
             <p class="text-slate-600 mb-6 max-w-2xl mx-auto">Test je kennis over de dynamiek van vraag en aanbod. Kies bij elk scenario de juiste grafische weergave.</p>
@@ -100,12 +121,8 @@
 
     <script>
         // --- DATASET MET OPGAVEN ---
-        let opgaven = [
-            // This will be populated with initial data below
-        ];
-
+        let opgaven = [];
         const initialOpgaven = [
-             // Vraagverschuivingen
             {
                 situatie: 1,
                 markt: "De markt voor elektrische fietsen.",
@@ -310,6 +327,12 @@
         let answered = false;
 
         // --- DOM ELEMENTS ---
+        const apiKeyModal = document.getElementById('api-key-modal');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const saveApiKeyButton = document.getElementById('save-api-key-button');
+        const closeModalButton = document.getElementById('close-modal-button');
+        const settingsButton = document.getElementById('settings-button');
+        
         const startScreen = document.getElementById('start-screen');
         const questionScreen = document.getElementById('question-screen');
         const endScreen = document.getElementById('end-screen');
@@ -418,7 +441,7 @@
                     svg.appendChild(drawArrow({x: width/2 - dir*5, y: arrowY}, {x: width/2 + dir*10, y: arrowY}, '#f97316'));
                 }
             } else if (graphType.move) {
-                 // CORRECTED: This block is now intentionally empty.
+                 // Block is intentionally empty.
             } else if (graphType.price_control) {
                 const pos = graphType.position === 'onder' ? 1 : -1;
                 const y = height/2 + pos * 30;
@@ -509,10 +532,35 @@
             scoreFeedback.textContent = feedback;
         }
 
-        // --- GEMINI API FUNCTIONS ---
+        // --- API KEY MANAGEMENT ---
+        function showApiKeyModal() {
+            apiKeyModal.classList.remove('hidden');
+        }
 
+        function hideApiKeyModal() {
+            apiKeyModal.classList.add('hidden');
+        }
+
+        function saveApiKey() {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem('geminiApiKey', key);
+                hideApiKeyModal();
+            }
+        }
+
+        function getApiKey() {
+            return localStorage.getItem('geminiApiKey');
+        }
+
+        // --- GEMINI API FUNCTIONS ---
         async function callGemini(prompt, isJson = false) {
-             const apiKey = ""; 
+             const apiKey = getApiKey();
+             if (!apiKey) {
+                showApiKeyModal();
+                throw new Error("API-sleutel niet gevonden.");
+             }
+             
              const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             const payload = {
@@ -557,21 +605,37 @@
         }
         
         // --- EVENT LISTENERS ---
+        settingsButton.addEventListener('click', showApiKeyModal);
+        closeModalButton.addEventListener('click', hideApiKeyModal);
+        saveApiKeyButton.addEventListener('click', saveApiKey);
+
         startButton.addEventListener('click', () => {
             startScreen.classList.add('hidden');
             questionScreen.classList.remove('hidden');
             showQuestion();
         });
 
-        generateScenarioButton.addEventListener('click', async () => {
-            generateSpinner.classList.remove('hidden');
-            generateError.classList.add('hidden');
-            generateScenarioButton.disabled = true;
+        async function handleAiFeature(button, spinner, errorElement, prompt, isJson, successCallback) {
+            spinner.classList.remove('hidden');
+            errorElement.classList.add('hidden');
+            button.disabled = true;
 
+            try {
+                const result = await callGemini(prompt, isJson);
+                successCallback(result);
+            } catch (error) {
+                errorElement.textContent = `Fout: ${error.message}. Heeft u een geldige API-sleutel ingesteld?`;
+                errorElement.classList.remove('hidden');
+            } finally {
+                spinner.classList.add('hidden');
+                button.disabled = false;
+            }
+        }
+
+        generateScenarioButton.addEventListener('click', () => {
             const prompt = `Genereer een uniek en creatief economisch scenario voor een vraag- en aanbodspel voor middelbare scholieren (havo/vwo niveau). Het scenario moet een duidelijke verschuiving van ofwel de vraaglijn, ofwel de aanbodlijn veroorzaken. Geef een korte uitleg. Antwoord in het Nederlands. De verschuiving moet een van de volgende zijn: 'vraag naar rechts', 'vraag naar links', 'aanbod naar rechts', 'aanbod naar links'.`;
             
-            try {
-                const jsonResponse = await callGemini(prompt, true);
+            handleAiFeature(generateScenarioButton, generateSpinner, generateError, prompt, true, (jsonResponse) => {
                 const aiOpgave = JSON.parse(jsonResponse);
 
                 const shiftMap = {
@@ -585,10 +649,8 @@
                 if (!correctType) throw new Error("Onbekende verschuiving van AI.");
 
                 const distractors = Object.values(shiftMap).filter(v => v.shift !== correctType.shift || v.direction !== correctType.direction);
-                // Also add a 'move' distractor
                 distractors.push({ move: 'vraag', direction: 'omlaag' });
                 distractors.sort(() => Math.random() - 0.5);
-
 
                 const options = [ { type: correctType, id: 'A' } ];
                 for(let i=0; i<3; i++) {
@@ -596,7 +658,6 @@
                 }
                 options.sort(() => Math.random() - 0.5);
                 const correctId = options.find(o => o.type.shift === correctType.shift && o.type.direction === correctType.direction).id;
-
 
                 const newQuestion = {
                     situatie: opgaven.length + 1,
@@ -615,36 +676,17 @@
                 startScreen.classList.add('hidden');
                 questionScreen.classList.remove('hidden');
                 showQuestion();
-
-            } catch (error) {
-                generateError.textContent = "Er ging iets mis bij het genereren van het scenario. Probeer het opnieuw.";
-                generateError.classList.remove('hidden');
-            } finally {
-                generateSpinner.classList.add('hidden');
-                generateScenarioButton.disabled = false;
-            }
+            });
         });
 
-        analyzeButton.addEventListener('click', async () => {
-            analyzeSpinner.classList.remove('hidden');
-            analysisContainer.classList.add('hidden');
-            analysisError.classList.add('hidden');
-            analyzeButton.disabled = true;
-
+        analyzeButton.addEventListener('click', () => {
             const q = opgaven[currentQuestionIndex];
             const prompt = `Analyseer het volgende economische scenario voor een middelbare scholier. Leg in 2-3 zinnen uit wat de mogelijke tweede-orde-effecten zijn, of geef een relevant, actueel voorbeeld uit de echte wereld. Het scenario is: '${q.scenario}' op de markt voor '${q.markt}'. De basisuitleg is: '${q.uitleg}'. Geef alleen de diepere analyse, in het Nederlands.`;
-
-            try {
-                const analysisResult = await callGemini(prompt, false);
+            
+            handleAiFeature(analyzeButton, analyzeSpinner, analysisError, prompt, false, (analysisResult) => {
                 analysisText.textContent = analysisResult;
                 analysisContainer.classList.remove('hidden');
-            } catch (error) {
-                analysisError.textContent = "Analyse kon niet worden opgehaald.";
-                analysisContainer.classList.remove('hidden'); // Show container to display error
-                analysisError.classList.remove('hidden');
-            } finally {
-                 analyzeSpinner.classList.add('hidden');
-            }
+            });
         });
 
         nextButton.addEventListener('click', () => {
